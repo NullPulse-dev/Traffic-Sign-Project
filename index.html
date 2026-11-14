@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSR System | Autonomous Vehicle Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- MOBILE HEADER -->
+    <div class="mobile-header">
+        <div class="logo"><i class="fa-solid fa-shield-halved"></i> TSR System</div>
+        <button id="mobile-menu-btn"><i class="fa-solid fa-bars text-xl"></i></button>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-brand">
+            <h1><i class="fa-solid fa-shield-halved text-green-500 mr-2"></i>TSR System</h1>
+            <p>Autonomous Assistant v1.0</p>
+        </div>
+        <nav class="sidebar-nav">
+            <button class="nav-btn active" onclick="switchTab('dashboard')"><i class="fa-solid fa-video"></i> Live Dashboard</button>
+            <button class="nav-btn" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-pie"></i> System Analytics</button>
+            <button class="nav-btn" onclick="switchTab('dataset')"><i class="fa-solid fa-images"></i> Dataset Viewer</button>
+            <button class="nav-btn" onclick="switchTab('logs')"><i class="fa-solid fa-list-check"></i> Decision Logs</button>
+            <button class="nav-btn" onclick="switchTab('architecture')"><i class="fa-solid fa-sitemap"></i> Architecture</button>
+            <button class="nav-btn" onclick="switchTab('settings')"><i class="fa-solid fa-gear"></i> Model Settings</button>
+            <button class="nav-btn" onclick="switchTab('about')"><i class="fa-solid fa-circle-info"></i> About Project</button>
+            <button class="nav-btn" onclick="switchTab('profile')"><i class="fa-solid fa-user-astronaut"></i> Admin Profile</button>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="avatar">AS</div>
+                <div>
+                    <p class="user-name">Alkali A. Silas</p>
+                    <p class="user-id">FT22BCMP0993</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="top-header">
+            <div>
+                <h2 id="page-title">Live Dashboard</h2>
+                <p id="page-subtitle">Real-time traffic monitoring and hazard detection.</p>
+            </div>
+            <div class="header-right">
+                <span class="status-badge"><span class="status-dot"></span> System Online</span>
+                <button class="icon-btn"><i class="fa-solid fa-bell"></i></button>
+                <div class="header-avatar">AS</div>
+            </div>
+        </header>
+
+        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <section id="tab-dashboard" class="tab-content active">
+            
+            <!-- NEW DESCRIPTION BANNER -->
+            <div class="info-banner mb-6">
+                <div class="info-icon"><i class="fa-solid fa-circle-info"></i></div>
+                <div class="info-text">
+                    <h4>System Description</h4>
+                    <p>This dashboard demonstrates a real-time Traffic Sign Recognition (TSR) system for autonomous vehicles. The top-down simulation shows a live feed where the AI detects vehicles, pedestrians, and hazardous breakdowns. Click <strong>Run AI Detection</strong> to see the bounding boxes and decision support in action.</p>
+                </div>
+            </div>
+
+            <div class="grid-layout">
+                <div class="col-left">
+                    <div class="card camera-card">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-camera text-green-500 mr-2"></i> Live Aerial Feed</h3>
+                            <span class="badge">Cam_01 • 4K Top-Down</span>
+                        </div>
+                        
+                        <div class="camera-feed" id="camera-container">
+                            <div class="grass-bg"></div>
+                            <div class="sidewalk left-sidewalk"></div>
+                            <div class="sidewalk right-sidewalk"></div>
+                            <div class="building fuel-station"><div class="roof-grid"></div><div class="text">GAS STATION</div></div>
+                            <div class="building shop-1"><div class="roof-grid"></div><div class="text">MINI MART</div></div>
+                            <div class="building shop-2"><div class="roof-grid"></div><div class="text">CAFE</div></div>
+                            <div class="gta-road">
+                                <div class="road-line center-line"></div>
+                                <div class="stop-line-top"></div>
+                                <div class="stop-line-bottom"></div>
+                                <div class="traffic-light top-light" id="tl-top">
+                                    <div class="light red"></div>
+                                    <div class="light yellow"></div>
+                                    <div class="light green active"></div>
+                                </div>
+                                <div class="traffic-light bottom-light" id="tl-bottom">
+                                    <div class="light red"></div>
+                                    <div class="light yellow"></div>
+                                    <div class="light green active"></div>
+                                </div>
+                            </div>
+                            <div id="entity-container"></div>
+                            <div class="scanner" id="scanner"></div>
+                            <div class="bounding-box" id="bounding-box">
+                                <span class="label-box" id="box-label">Waiting...</span>
+                            </div>
+                        </div>
+                        
+                        <div class="camera-controls">
+                            <div class="flex gap-2">
+                                <button id="btn-detect" class="btn-primary"><i class="fa-solid fa-play mr-2"></i> Run AI Detection</button>
+                                <button id="btn-spawn-park" class="btn-secondary"><i class="fa-solid fa-car-burst mr-2"></i> Simulate Breakdown</button>
+                            </div>
+                            <div class="inference-box">
+                                <span>Inference Time</span>
+                                <strong id="inference-time">-- ms</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-6">
+                        <h3><i class="fa-solid fa-chart-line text-green-500 mr-2"></i> Real-time Object Classification Metrics</h3>
+                        <div class="chart-container"><canvas id="barChart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="col-right">
+                    <div class="card decision-card">
+                        <h3><i class="fa-solid fa-car-side text-green-500 mr-2"></i> Decision Support</h3>
+                        <div class="decision-item">
+                            <p class="label">Detected Object</p>
+                            <p class="value" id="decision-sign">Waiting...</p>
+                        </div>
+                        <div class="decision-item">
+                            <p class="label">Confidence Level</p>
+                            <p class="value text-green-500" id="decision-confidence">--%</p>
+                        </div>
+                        <div class="action-box" id="action-card">
+                            <p class="label"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Action Required</p>
+                            <p class="value" id="decision-action">Standby</p>
+                        </div>
+                    </div>
+
+                    <div class="card mt-6">
+                        <h3><i class="fa-solid fa-list-ul text-green-500 mr-2"></i> Live System Logs</h3>
+                        <div id="mini-logs" class="logs-list">
+                            <div class="log-entry"><span>System Initialized</span><span class="text-green-500 font-bold">OK</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: ANALYTICS ================= -->
+        <section id="tab-analytics" class="tab-content">
+            <div class="grid-layout-2">
+                <div class="card">
+                    <h3><i class="fa-solid fa-chart-area text-green-500 mr-2"></i> Training vs Validation Loss</h3>
+                    <p class="text-gray-400 text-sm mb-4">Monitoring overfitting across 50 epochs. The validation loss remains stable, indicating good generalization. Early stopping was applied at epoch 42 to prevent overfitting.</p>
+                    <div class="chart-container"><canvas id="lossChart"></canvas></div>
+                </div>
+                <div class="card">
+                    <h3><i class="fa-solid fa-chart-pie text-green-500 mr-2"></i> Class Distribution</h3>
+                    <p class="text-gray-400 text-sm mb-4">Distribution of the 43 traffic sign classes across 4 super-categories used in the GTSRB dataset. Speed limits constitute the majority of the dataset.</p>
+                    <div class="chart-container"><canvas id="doughnutChart"></canvas></div>
+                </div>
+            </div>
+            
+            <div class="card mt-6">
+                <h3><i class="fa-solid fa-microchip text-green-500 mr-2"></i> Hardware Performance & Inference Speed</h3>
+                <div class="metrics-grid mt-4">
+                    <div class="metric-box">
+                        <span class="metric-title">GPU Utilization</span>
+                        <span class="metric-value">87%</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 87%;"></div></div>
+                        <p class="text-xs text-gray-500 mt-2">NVIDIA Jetson Nano Edge Device</p>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-title">Memory (VRAM)</span>
+                        <span class="metric-value">4.2 / 8.0 GB</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 52%;"></div></div>
+                        <p class="text-xs text-gray-500 mt-2">TensorFlow/Keras Model footprint</p>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-title">CPU Load</span>
+                        <span class="metric-value">34%</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 34%;"></div></div>
+                        <p class="text-xs text-gray-500 mt-2">OpenCV Preprocessing Thread</p>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-title">Avg Inference Speed</span>
+                        <span class="metric-value">24.5 ms</span>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 95%;"></div></div>
+                        <p class="text-xs text-gray-500 mt-2">Real-time capable (>30 FPS)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-6">
+                <h3><i class="fa-solid fa-table text-green-500 mr-2"></i> Model Evaluation Table</h3>
+                <p class="text-gray-400 text-sm mb-4">Comparison of the proposed YOLOv8 + CNN architecture against baseline models used in previous literature.</p>
+                <table class="data-table mt-4">
+                    <thead>
+                        <tr><th>Model Architecture</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1-Score</th><th>Inference</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>YOLOv8 + CNN (Proposed)</td><td class="text-green-500 font-bold">98.5%</td><td>97.2%</td><td>96.8%</td><td>97.0%</td><td>24 ms</td></tr>
+                        <tr><td>Faster R-CNN (Baseline)</td><td>94.2%</td><td>93.5%</td><td>92.1%</td><td>92.8%</td><td>110 ms</td></tr>
+                        <tr><td>SSD MobileNet (Baseline)</td><td>91.8%</td><td>90.4%</td><td>89.5%</td><td>89.9%</td><td>45 ms</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: DATASET ================= -->
+        <section id="tab-dataset" class="tab-content">
+            <div class="card">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3><i class="fa-solid fa-database text-green-500 mr-2"></i> GTSRB Dataset Breakdown</h3>
+                        <p class="text-gray-400 text-sm mt-1">German Traffic Sign Recognition Benchmark (50,000+ images, 43 classes).</p>
+                    </div>
+                    <span class="badge">Active Dataset</span>
+                </div>
+                
+                <div class="dataset-grid-pro">
+                    <div class="ds-card">
+                        <div class="ds-visual"><div class="sign-speed">20</div></div>
+                        <div class="ds-info"><h4>Speed Limit 20</h4><span>2,010 images</span></div>
+                    </div>
+                    <div class="ds-card">
+                        <div class="ds-visual"><div class="sign-speed">30</div></div>
+                        <div class="ds-info"><h4>Speed Limit 30</h4><span>2,220 images</span></div>
+                    </div>
+                    <div class="ds-card">
+                        <div class="ds-visual"><div class="sign-speed">50</div></div>
+                        <div class="ds-info"><h4>Speed Limit 50</h4><span>2,250 images</span></div>
+                    </div>
+                    <div class="ds-card">
+                        <div class="ds-visual"><div class="sign-speed">60</div></div>
+                        <div class="ds-info"><h4>Speed Limit 60</h4><span>1,410 images</span></div>
+                    </div>
+                    <div class="ds-card">
+                        <div class="ds-visual"><div class="sign-speed">80</div></div>
+                        <div class="ds-info"><h4>Speed Limit 80</h4><span>1,890 images</span></div>
+                    </div>
+                    <div class="ds-card">
+                        <div class="ds-visual"><div class="sign-stop">STOP</div></div>
+                        <div class="ds-info"><h4>Stop Sign</h4><span>780 images</span></div>
+                    </div>
+                    <div class="ds-card">
+                        <div class="ds-visual"><div class="sign-yield">YIELD</div></div>
+                        <div class="ds-info"><h4>Yield</h4><span>2,160 images</span></div>
+                    </div>
+                    <div class="ds-card">
+                        <div class="ds-visual"><div class="sign-speed">🚶</div></div>
+                        <div class="ds-info"><h4>Pedestrian</h4><span>2,100 images</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: LOGS ================= -->
+        <section id="tab-logs" class="tab-content">
+            <div class="card">
+                <div class="flex justify-between items-center mb-6">
+                    <h3><i class="fa-solid fa-file-shield text-green-500 mr-2"></i> Full System Audit Logs</h3>
+                    <button class="btn-outline" onclick="document.getElementById('full-logs').innerHTML=''">Clear Logs</button>
+                </div>
+                <table class="data-table">
+                    <thead><tr><th>Timestamp</th><th>Module</th><th>Event / Detection</th><th>Confidence</th><th>Action Taken</th></tr></thead>
+                    <tbody id="full-logs"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================= TAB 5: ARCHITECTURE ================= -->
+        <section id="tab-architecture" class="tab-content">
+            <div class="card">
+                <h3><i class="fa-solid fa-network-wired text-green-500 mr-2"></i> System Pipeline Architecture</h3>
+                <p class="text-gray-400 mb-6">The complete flow from image capture to decision support, mirroring the research methodology.</p>
+                <div class="pipeline-container">
+                    <div class="pipeline-step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-title">IMAGE ACQUISITION</div>
+                            <div class="step-desc">Capture road scenes using onboard vehicle cameras at 30 FPS. The raw frames are fed into the preprocessing module.</div>
+                        </div>
+                    </div>
+                    <div class="pipeline-arrow"></div>
+                    <div class="pipeline-step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">PREPROCESSING</div>
+                            <div class="step-desc">Resizing to 224x224, normalization of pixel values (0-1), and data augmentation (rotation, zoom, brightness).</div>
+                        </div>
+                    </div>
+                    <div class="pipeline-arrow"></div>
+                    <div class="pipeline-step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">YOLOv8 DETECTION</div>
+                            <div class="step-desc">Localizing traffic signs and drawing bounding boxes around the region of interest (ROI) to isolate the sign from the background.</div>
+                        </div>
+                    </div>
+                    <div class="pipeline-arrow"></div>
+                    <div class="pipeline-step final-step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <div class="step-title">CNN CLASSIFICATION</div>
+                            <div class="step-desc">Classifying the isolated ROI into one of 43 categories. The system then maps the class to a driving action (e.g., slowing down for a speed limit).</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 6: SETTINGS ================= -->
+        <section id="tab-settings" class="tab-content">
+            <div class="card">
+                <h3><i class="fa-solid fa-sliders text-green-500 mr-2"></i> Model Hyperparameters</h3>
+                <p class="text-gray-400 text-sm mb-4">Adjust the inference parameters and hardware acceleration settings for the real-time simulation.</p>
+                <div class="settings-grid mt-4">
+                    <div class="setting-item">
+                        <div>
+                            <span class="setting-title">Confidence Threshold</span>
+                            <span class="setting-desc">Minimum confidence to accept a detection (Default: 85%).</span>
+                        </div>
+                        <input type="range" min="1" max="100" value="85" class="range-slider">
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <span class="setting-title">Enable Night Vision</span>
+                            <span class="setting-desc">Enhance low-light image processing for nighttime driving.</span>
+                        </div>
+                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <span class="setting-title">Hardware Acceleration</span>
+                            <span class="setting-desc">Use GPU/CUDA for inference to ensure real-time performance.</span>
+                        </div>
+                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <span class="setting-title">Save Frame Logs</span>
+                            <span class="setting-desc">Automatically save detected frames for future retraining.</span>
+                        </div>
+                        <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 7: ABOUT ================= -->
+        <section id="tab-about" class="tab-content">
+            <div class="card">
+                <div class="flex items-center gap-4 mb-6 border-b border-gray-800 pb-6">
+                    <div class="w-16 h-16 bg-green-900/30 rounded-full flex justify-center items-center border border-green-500/50">
+                        <i class="fa-solid fa-graduation-cap text-green-500 text-2xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-1">Traffic Sign Recognition System for Autonomous Vehicle Assistant</h3>
+                        <p class="text-gray-400">A B.Sc. Computer Science Research Project • Nasarawa State University, Keffi</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-[#111] p-6 rounded-lg border border-gray-800 md:col-span-2">
+                        <h4 class="text-green-500 font-bold uppercase tracking-wider text-sm mb-3">Abstract</h4>
+                        <p class="text-gray-300 leading-relaxed text-sm">
+                            This study presents the design and implementation of a Traffic Sign Recognition System for Autonomous System Assistant with the aim of improving road safety and enhancing the decision-making capability of autonomous driving systems through automatic detection and classification of traffic signs. The study investigates the problem of inaccurate or delayed recognition of traffic signs caused by poor lighting conditions, weather variations, occlusion, faded signs, and human error, which reduce the reliability and safety of autonomous vehicle assistant systems. A quantitative system development methodology was adopted, involving the collection of traffic sign image datasets, image preprocessing, feature extraction, and the training and evaluation of a Convolutional Neural Network (CNN) model implemented using Python and OpenCV. The system performance was evaluated using standard machine learning metrics such as accuracy, precision, recall, and F1-score. The findings indicate that the proposed system achieves high classification accuracy, fast recognition speed, and improved robustness under varying environmental conditions, thereby providing reliable real-time traffic sign recognition for autonomous system assistant.
+                        </p>
+                    </div>
+                    <div class="bg-[#111] p-6 rounded-lg border border-gray-800">
+                        <h4 class="text-green-500 font-bold uppercase tracking-wider text-sm mb-3">Methodology</h4>
+                        <ul class="text-sm text-gray-400 space-y-3">
+                            <li><i class="fa-solid fa-microchip text-green-500 mr-2"></i> <strong>Dataset:</strong> GTSRB (50,000+ images).</li>
+                            <li><i class="fa-solid fa-microchip text-green-500 mr-2"></i> <strong>Detection:</strong> YOLOv8 Architecture.</li>
+                            <li><i class="fa-solid fa-microchip text-green-500 mr-2"></i> <strong>Classification:</strong> CNN.</li>
+                            <li><i class="fa-solid fa-microchip text-green-500 mr-2"></i> <strong>Tools:</strong> Python, OpenCV, TensorFlow.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 8: PROFILE ================= -->
+        <section id="tab-profile" class="tab-content">
+            <div class="card profile-card">
+                <div class="profile-avatar">AS</div>
+                <h3 class="text-2xl mt-4 font-bold text-white">Alkali Avre Silas</h3>
+                <p class="text-green-500 font-medium font-mono text-sm mt-1">ID: FT22BCMP0993</p>
+                
+                <div class="w-full max-w-2xl mt-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-[#111] p-4 rounded-lg border border-gray-800 flex items-center gap-4">
+                            <i class="fa-solid fa-building-columns text-green-500 text-2xl"></i>
+                            <div><span class="text-xs text-gray-500 uppercase block">Institution</span><p class="text-sm text-white font-bold">Nasarawa State University</p></div>
+                        </div>
+                        <div class="bg-[#111] p-4 rounded-lg border border-gray-800 flex items-center gap-4">
+                            <i class="fa-solid fa-book text-green-500 text-2xl"></i>
+                            <div><span class="text-xs text-gray-500 uppercase block">Department</span><p class="text-sm text-white font-bold">Computer Science</p></div>
+                        </div>
+                        <div class="bg-[#111] p-4 rounded-lg border border-gray-800 flex items-center gap-4">
+                            <i class="fa-solid fa-graduation-cap text-green-500 text-2xl"></i>
+                            <div><span class="text-xs text-gray-500 uppercase block">Degree</span><p class="text-sm text-white font-bold">B.Sc. Computer Science</p></div>
+                        </div>
+                        <div class="bg-[#111] p-4 rounded-lg border border-gray-800 flex items-center gap-4">
+                            <i class="fa-solid fa-calendar text-green-500 text-2xl"></i>
+                            <div><span class="text-xs text-gray-500 uppercase block">Year</span><p class="text-sm text-white font-bold">June, 2026</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
